@@ -93,7 +93,21 @@ fn add_answer(stacks: &[char], current: &mut i32) -> Result<(), color_eyre::eyre
 mod tests {
     use std::error::Error;
 
-    use crate::{day_01::solve_day01, solver::Answer};
+    use crate::{day01::solve_day01, solver::Answer};
+
+    #[tokio::test]
+    async fn test_part1() -> Result<(), Box<dyn Error>> {
+        let input = "1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet
+";
+
+        let answer = solve_day01(input).await?;
+        assert_eq!(answer.part1, Some("142".to_string()));
+
+        Ok(())
+    }
 
     #[tokio::test]
     async fn test_part2() -> Result<(), Box<dyn Error>> {
@@ -118,6 +132,18 @@ mod tests {
                 part2: Some("99".to_string())
             }
         );
+
+        let input = "two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen
+";
+
+        let answer = solve_day01(input).await?;
+        assert_eq!(answer.part2, Some("281".to_string()));
 
         Ok(())
     }
