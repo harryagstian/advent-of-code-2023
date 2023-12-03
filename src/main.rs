@@ -3,6 +3,7 @@ use color_eyre::eyre::Result;
 use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 mod day01;
+mod day02;
 mod solver;
 
 fn init() -> Result<ArgMatches> {

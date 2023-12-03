@@ -38,7 +38,8 @@ impl Solver {
 
     pub async fn solve(&mut self) -> Result<()> {
         let answer = match self.day {
-            1 => crate::day01::solve_day01(&self.input).await?,
+            1 => crate::day01::solve_day01(&self.input)?,
+            2 => crate::day02::solve_day02(&self.input)?,
             _ => todo!(),
         };
 
