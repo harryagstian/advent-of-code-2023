@@ -4,6 +4,7 @@ use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 mod day01;
 mod day02;
+mod day03;
 mod solver;
 
 fn init() -> Result<ArgMatches> {

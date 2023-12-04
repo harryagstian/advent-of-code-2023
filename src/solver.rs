@@ -40,6 +40,7 @@ impl Solver {
         let answer = match self.day {
             1 => crate::day01::solve_day01(&self.input)?,
             2 => crate::day02::solve_day02(&self.input)?,
+            3 => crate::day03::solve_day03(&self.input)?,
             _ => todo!(),
         };
 
