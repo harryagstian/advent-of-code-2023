@@ -38,7 +38,8 @@ enum Category {
 
 #[derive(Debug)]
 struct Almanac {
-    seeds: Vec<u64>,
+    seeds_one: Vec<Range<u64>>,
+    seeds_range: Vec<Range<u64>>,
     maps: Vec<Map>,
 }
 
@@ -98,9 +99,7 @@ impl Map {
 
     fn get_next_value(&self, value: u64) -> u64 {
         for (key, source_range) in self.source_category_range.iter() {
-            let in_range = source_range.contains(&value);
-
-            if in_range {
+            if source_range.contains(&value) {
                 let destination_range = self.destination_category_range.get(&key).unwrap();
                 let diff = value - source_range.start;
 
@@ -114,7 +113,8 @@ impl Map {
 
 impl Almanac {
     fn new(input: &str) -> Self {
-        let mut seeds = vec![];
+        let mut seeds_one = vec![];
+        let mut seeds_range = vec![];
         let mut maps = vec![];
 
         let mut line_iter = input.lines().into_iter();
@@ -125,12 +125,24 @@ impl Almanac {
             }
 
             // handle first line, it should always has initial seeds
-            if seeds.len() == 0 {
+            if seeds_one.len() == 0 {
                 let v = line.replace("seeds:", "").trim().to_string();
-                seeds.append(&mut v.split_whitespace().map(|f| f.parse().unwrap()).collect());
+                let mut start = 0;
+                let mut end;
+
+                for (index, x) in v.split_whitespace().map(|f| f.parse().unwrap()).enumerate() {
+                    seeds_one.push(x..x + 1);
+
+                    if index % 2 == 0 {
+                        start = x;
+                    } else {
+                        end = x;
+                        seeds_range.push(start..start + end);
+                    }
+                }
             }
 
-            assert!(seeds.len() > 0);
+            assert!(seeds_one.len() > 0);
 
             if line.contains("map:") {
                 let mut map_stacks = VecDeque::from([line.replace("map:", "").trim().to_string()]);
@@ -148,7 +160,11 @@ impl Almanac {
             }
         }
 
-        Self { seeds, maps }
+        Self {
+            seeds_one,
+            seeds_range,
+            maps,
+        }
     }
 
     fn lookup(&self, value: u64, source_category: Category) -> (u64, Category) {
@@ -163,29 +179,39 @@ impl Almanac {
         (next_value, map.destination_category.clone())
     }
 
-    fn solve(&self) -> u64 {
+    fn solve(&self, seeds: &Vec<Range<u64>>) -> u64 {
         let mut stacks = vec![];
-        for v in self.seeds.iter() {
-            let mut source_category = Category::Seed;
-            let mut value = *v;
 
-            while source_category != Category::Location {
-                (value, source_category) = self.lookup(value, source_category);
+        for range in seeds.iter() {
+            for v in range.clone() {
+                // dbg!(&v);
+                let mut source_category = Category::Seed;
+                let mut value = v;
+
+                while source_category != Category::Location {
+                    (value, source_category) = self.lookup(value, source_category);
+                }
+                stacks.push(value);
             }
-
-            stacks.push(value);
         }
+
         stacks.sort();
+        // dbg!(&stacks);
         *stacks.first().unwrap()
     }
 }
 
 pub fn solve_day05(input: &str) -> Result<Answer> {
     let almanac = Almanac::new(input);
-    let solution = almanac.solve();
+
+    let part1 = almanac.solve(&almanac.seeds_one);
+    let part2 = almanac.solve(&almanac.seeds_range);
+
+    dbg!(&almanac);
+
     let answer = Answer {
-        part1: Some(solution.to_string()),
-        part2: Some("0".to_string()),
+        part1: Some(part1.to_string()),
+        part2: Some(part2.to_string()),
     };
 
     Ok(answer)
@@ -233,7 +259,14 @@ humidity-to-location map:
     #[test]
     fn test_part1() {
         let almanac = Almanac::new(TEST_INPUT);
-        let solution = almanac.solve();
+        let solution = almanac.solve(&almanac.seeds_one);
         assert_eq!(solution, 35);
+    }
+
+    #[test]
+    fn test_part2() {
+        let almanac = Almanac::new(TEST_INPUT);
+        let solution = almanac.solve(&almanac.seeds_range);
+        assert_eq!(solution, 46);
     }
 }
