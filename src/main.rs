@@ -5,6 +5,7 @@ use tracing_subscriber::FmtSubscriber;
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 mod solver;
 
 fn init() -> Result<ArgMatches> {
