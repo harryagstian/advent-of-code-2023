@@ -9,10 +9,19 @@ pub struct Solver {
     answer: Option<Answer>,
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Answer {
     pub part1: Option<String>,
     pub part2: Option<String>,
+}
+
+impl Default for Answer {
+    fn default() -> Self {
+        Self {
+            part1: Some("0".to_string()),
+            part2: Some("0".to_string()),
+        }
+    }
 }
 
 impl Solver {
@@ -43,6 +52,7 @@ impl Solver {
             3 => crate::day03::solve_day03(&self.input)?,
             4 => crate::day04::solve_day04(&self.input)?,
             5 => crate::day05::solve_day05(&self.input)?,
+            6 => crate::day06::solve_day06(&self.input)?,
             _ => todo!(),
         };
 

@@ -233,9 +233,9 @@ impl Almanac {
         (result, map.destination_category.clone())
     }
 
-    fn solve(&self, seeds: &Vec<Range<i64>>) -> i64 {
+    fn solve(&self, seeds: &[Range<i64>]) -> i64 {
         let mut min_value = i64::MAX;
-        let mut current = seeds.clone();
+        let mut current = seeds.to_owned();
 
         let mut source_category = Category::Seed;
 
