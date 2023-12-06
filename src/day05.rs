@@ -1,20 +1,10 @@
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    ops::Range,
-    str::FromStr,
-    u64,
-};
+use std::{collections::VecDeque, i64, str::FromStr};
 
 use color_eyre::eyre::Result;
-use strum::{Display, EnumString};
-use tracing::info;
+use num_traits::{PrimInt, Zero};
+use strum::EnumString;
 
 use crate::solver::Answer;
-
-enum Phase {
-    Initial,
-    Map,
-}
 
 #[derive(EnumString, Debug, PartialEq, Eq, Clone)]
 enum Category {
@@ -38,17 +28,63 @@ enum Category {
 
 #[derive(Debug)]
 struct Almanac {
-    seeds_one: Vec<Range<u64>>,
-    seeds_range: Vec<Range<u64>>,
+    seeds_one: Vec<Range<i64>>,
+    seeds_range: Vec<Range<i64>>,
     maps: Vec<Map>,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Clone)]
+struct Range<T> {
+    start: T,
+    end: T,
+    diff: T,
+}
+
+impl<T> Range<T> {
+    fn new(start: T, end: T, diff: T) -> Self {
+        Self { start, end, diff }
+    }
+}
+
+trait FillGaps {
+    fn fill_gaps(&mut self);
+}
+
+impl<T: PrimInt + std::fmt::Debug> FillGaps for Vec<Range<T>> {
+    fn fill_gaps(&mut self) {
+        let iter = self.iter().peekable();
+        let mut min_value = Zero::zero();
+
+        let mut new_vec = vec![];
+
+        for current in iter {
+            if current.start > min_value {
+                new_vec.push(Range {
+                    start: min_value,
+                    end: current.start,
+                    diff: Zero::zero(),
+                })
+            }
+            new_vec.push(current.clone());
+
+            min_value = current.end;
+        }
+
+        new_vec.push(Range {
+            start: min_value,
+            end: T::max_value(),
+            diff: Zero::zero(),
+        });
+
+        *self = new_vec;
+    }
 }
 
 #[derive(Debug)]
 struct Map {
     source_category: Category,
     destination_category: Category,
-    source_category_range: HashMap<usize, Range<u64>>,
-    destination_category_range: HashMap<usize, Range<u64>>,
+    formulas: Vec<Range<i64>>,
 }
 
 impl Map {
@@ -67,16 +103,14 @@ impl Map {
         let first = vec.pop().unwrap();
         let source_category = Category::from_str(first).unwrap();
         let destination_category = Category::from_str(last).unwrap();
-
-        let mut source_category_range = HashMap::new();
-        let mut destination_category_range = HashMap::new();
+        let mut formulas = vec![];
 
         // parse all number ranges
-        for (index, line) in input.iter().enumerate() {
+        for line in input.iter() {
             let mut line = line
                 .split_whitespace()
                 .map(|f| f.parse().unwrap())
-                .collect::<Vec<u64>>();
+                .collect::<Vec<i64>>();
 
             assert_eq!(line.len(), 3);
 
@@ -84,30 +118,18 @@ impl Map {
             let src = line.pop().unwrap();
             let dst = line.pop().unwrap();
 
-            source_category_range.insert(index, src..src + interval);
-
-            destination_category_range.insert(index, dst..dst + interval);
+            let formula = Range::new(src, src + interval, dst - src);
+            formulas.push(formula);
         }
+
+        formulas.sort();
+        formulas.fill_gaps();
 
         Self {
             source_category,
             destination_category,
-            source_category_range,
-            destination_category_range,
+            formulas,
         }
-    }
-
-    fn get_next_value(&self, value: u64) -> u64 {
-        for (key, source_range) in self.source_category_range.iter() {
-            if source_range.contains(&value) {
-                let destination_range = self.destination_category_range.get(&key).unwrap();
-                let diff = value - source_range.start;
-
-                return destination_range.start + diff;
-            }
-        }
-
-        value
     }
 }
 
@@ -117,38 +139,37 @@ impl Almanac {
         let mut seeds_range = vec![];
         let mut maps = vec![];
 
-        let mut line_iter = input.lines().into_iter();
+        let mut line_iter = input.lines();
 
         while let Some(line) = line_iter.next() {
-            if line.len() == 0 {
+            if line.is_empty() {
                 continue;
             }
 
             // handle first line, it should always has initial seeds
-            if seeds_one.len() == 0 {
+            if seeds_one.is_empty() {
                 let v = line.replace("seeds:", "").trim().to_string();
                 let mut start = 0;
                 let mut end;
 
                 for (index, x) in v.split_whitespace().map(|f| f.parse().unwrap()).enumerate() {
-                    seeds_one.push(x..x + 1);
-
+                    seeds_one.push(Range::new(x, x + 1, 0));
                     if index % 2 == 0 {
                         start = x;
                     } else {
                         end = x;
-                        seeds_range.push(start..start + end);
+                        seeds_range.push(Range::new(start, start + end, 0));
                     }
                 }
             }
 
-            assert!(seeds_one.len() > 0);
+            assert!(!seeds_one.is_empty());
 
             if line.contains("map:") {
                 let mut map_stacks = VecDeque::from([line.replace("map:", "").trim().to_string()]);
 
-                while let Some(l) = line_iter.next() {
-                    if l.len() == 0 {
+                for l in line_iter.by_ref() {
+                    if l.is_empty() {
                         break;
                     }
 
@@ -160,6 +181,9 @@ impl Almanac {
             }
         }
 
+        seeds_one.sort();
+        seeds_range.sort();
+
         Self {
             seeds_one,
             seeds_range,
@@ -167,37 +191,63 @@ impl Almanac {
         }
     }
 
-    fn lookup(&self, value: u64, source_category: Category) -> (u64, Category) {
+    fn get_next_range(
+        &self,
+        source_range: &Vec<Range<i64>>,
+        source_category: Category,
+    ) -> (Vec<Range<i64>>, Category) {
         let map = self
             .maps
             .iter()
             .find(|f| f.source_category == source_category)
             .unwrap();
 
-        let next_value = map.get_next_value(value);
+        let mut result = vec![];
 
-        (next_value, map.destination_category.clone())
-    }
-
-    fn solve(&self, seeds: &Vec<Range<u64>>) -> u64 {
-        let mut stacks = vec![];
-
-        for range in seeds.iter() {
-            for v in range.clone() {
-                // dbg!(&v);
-                let mut source_category = Category::Seed;
-                let mut value = v;
-
-                while source_category != Category::Location {
-                    (value, source_category) = self.lookup(value, source_category);
+        for src in source_range {
+            let mut new_range;
+            for dst in map.formulas.iter() {
+                // dbg!(&src, &dst);
+                let diff = dst.diff;
+                if src.start >= dst.start && src.end <= dst.end {
+                    // src is subset of dst
+                    new_range = Range::new(src.start + diff, src.end + diff, 0);
+                } else if src.start < dst.start && src.end > dst.end {
+                    // src is superset of dst
+                    new_range = Range::new(dst.start + diff, dst.end + diff, 0);
+                } else if src.start < dst.start && src.end <= dst.end && src.end >= dst.start {
+                    // src overlaps in the left hand side of dst
+                    new_range = Range::new(dst.start + diff, src.end + diff, 0);
+                } else if src.start >= dst.start && src.end > dst.end && src.start <= dst.end {
+                    // src overlaps in the right hand side of dst
+                    new_range = Range::new(src.start + diff, dst.end + diff, 0);
+                } else {
+                    continue;
                 }
-                stacks.push(value);
+                result.push(new_range);
             }
         }
 
-        stacks.sort();
-        // dbg!(&stacks);
-        *stacks.first().unwrap()
+        result.sort();
+
+        (result, map.destination_category.clone())
+    }
+
+    fn solve(&self, seeds: &Vec<Range<i64>>) -> i64 {
+        let mut min_value = i64::MAX;
+        let mut current = seeds.clone();
+
+        let mut source_category = Category::Seed;
+
+        while source_category != Category::Location {
+            (current, source_category) = self.get_next_range(&current, source_category);
+        }
+
+        for r in current.iter() {
+            min_value = std::cmp::min(min_value, r.start);
+        }
+
+        min_value
     }
 }
 
@@ -206,8 +256,6 @@ pub fn solve_day05(input: &str) -> Result<Answer> {
 
     let part1 = almanac.solve(&almanac.seeds_one);
     let part2 = almanac.solve(&almanac.seeds_range);
-
-    dbg!(&almanac);
 
     let answer = Answer {
         part1: Some(part1.to_string()),

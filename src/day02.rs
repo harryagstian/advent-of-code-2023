@@ -24,7 +24,7 @@ impl Set {
 
 impl Game {
     fn new(input: &str) -> Self {
-        let v: Vec<&str> = input.split(":").collect();
+        let v: Vec<&str> = input.split(':').collect();
         assert_eq!(v.len(), 2);
 
         let id = Game::get_game_id(v.first().unwrap());
@@ -39,7 +39,7 @@ impl Game {
             }
         }
 
-        return true;
+        true
     }
 
     fn minimum_bag(&self) -> Set {
@@ -60,8 +60,8 @@ impl Game {
 
     fn get_sets(input: &str) -> Vec<Set> {
         let mut result = vec![];
-        for set_str in input.split(";").map(|s| s.trim()) {
-            assert!(set_str.len() > 0);
+        for set_str in input.split(';').map(|s| s.trim()) {
+            assert!(!set_str.is_empty());
 
             result.push(Self::get_set(set_str));
         }
@@ -73,7 +73,7 @@ impl Game {
         let mut red = 0;
         let mut green = 0;
         let mut blue = 0;
-        for v in input.split(",").map(|f| f.trim()) {
+        for v in input.split(',').map(|f| f.trim()) {
             let t: Vec<&str> = v.split_whitespace().collect();
             assert_eq!(t.len(), 2);
 
@@ -217,7 +217,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
     #[test]
     fn test_part1() -> Result<()> {
-        let answer = super::solve_day02(&TEST_INPUT)?;
+        let answer = super::solve_day02(TEST_INPUT)?;
 
         assert_eq!(answer.part1, Some("8".to_string()));
 
@@ -226,7 +226,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
     #[test]
     fn test_part2() -> Result<()> {
-        let answer = super::solve_day02(&TEST_INPUT)?;
+        let answer = super::solve_day02(TEST_INPUT)?;
 
         assert_eq!(answer.part2, Some("2286".to_string()));
 

@@ -17,13 +17,13 @@ impl Schematic {
         let mut number_id = 0; // to prevent calculating the same number multiple times
 
         for line in input.lines() {
-            if line.len() == 0 {
+            if line.is_empty() {
                 continue;
             }
 
             let mut x_stack = vec![];
             // make peekable to see 1 char ahead
-            let mut x_iterator = line.chars().into_iter().peekable();
+            let mut x_iterator = line.chars().peekable();
 
             let mut number_stacks = vec![];
             let mut number_location = vec![];
@@ -49,7 +49,7 @@ impl Schematic {
                     let n = number_stacks.iter().collect::<String>();
 
                     for location in number_location.iter() {
-                        numbers.insert(location.clone(), (number_id, n.parse::<i32>().unwrap()));
+                        numbers.insert(*location, (number_id, n.parse::<i32>().unwrap()));
                     }
 
                     number_stacks.clear();
@@ -126,7 +126,7 @@ impl Schematic {
 }
 
 pub fn solve_day03(input: &str) -> Result<Answer> {
-    let schematic = Schematic::new(&input);
+    let schematic = Schematic::new(input);
     let part1: i32 = schematic.get_all_number_around_symbols().iter().sum();
     let part2: i32 = schematic.get_gear_ratio().iter().sum();
 

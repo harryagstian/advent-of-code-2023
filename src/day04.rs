@@ -15,14 +15,14 @@ impl Card {
         // input: "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53"
 
         // text: ["Card 1", "41 48 83 86 17 | 83 86  6 31 17  9 48 53"]
-        let text = input.split(":").map(|f| f.trim()).collect::<Vec<&str>>();
+        let text = input.split(':').map(|f| f.trim()).collect::<Vec<&str>>();
         assert!(text.len() == 2);
 
         // text: ["41 48 83 86 17", "83 86  6 31 17  9 48 53"]
         let text = text
             .last()
             .unwrap()
-            .split("|")
+            .split('|')
             .map(|f| f.trim())
             .collect::<Vec<&str>>();
         assert!(text.len() == 2);
@@ -107,7 +107,7 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
 
     #[test]
     fn test_part1() {
-        let scores = vec![8, 2, 2, 1, 0, 0, 0];
+        let scores = [8, 2, 2, 1, 0, 0, 0];
         let total: u32 = scores.iter().sum();
         let mut copies = VecDeque::new();
         let mut current_score = 0;
