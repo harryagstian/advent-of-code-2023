@@ -13,14 +13,9 @@ impl Race {
     }
 
     fn get_win_possibilities(&self) -> u64 {
-        let mut win = 0;
-        for i in 0..=self.time {
-            if i * (self.time - i) > self.distance {
-                win += 1
-            }
-        }
-
-        win
+        (0..=self.time)
+            .filter(|&i| i * (self.time - i) > self.distance)
+            .count() as u64
     }
 }
 
