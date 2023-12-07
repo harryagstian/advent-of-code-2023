@@ -175,7 +175,9 @@ mod tests {
         let schematic = Schematic::new(input);
         let gear_ratio = &schematic.get_gear_ratio();
 
-        assert_eq!(gear_ratio, &Vec::from([451490, 16345]));
+        assert_eq!(gear_ratio.len(), 2);
+        assert!(gear_ratio.contains(&451490));
+        assert!(gear_ratio.contains(&16345));
 
         let value: i32 = gear_ratio.iter().sum();
 

@@ -89,10 +89,18 @@ mod tests {
 Distance:  9  40  200";
 
     #[test]
-    fn test() -> Result<()> {
+    fn test_part1() -> Result<()> {
         let answer = solve_day06(TEST_INPUT)?;
 
         assert_eq!(answer.part1, Some("288".to_string()));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_part2() -> Result<()> {
+        let answer = solve_day06(TEST_INPUT)?;
+
         assert_eq!(answer.part2, Some("71503".to_string()));
 
         Ok(())
