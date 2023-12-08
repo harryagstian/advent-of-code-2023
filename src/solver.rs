@@ -54,6 +54,7 @@ impl Solver {
             5 => crate::day05::solve_day05(&self.input)?,
             6 => crate::day06::solve_day06(&self.input)?,
             7 => crate::day07::solve_day07(&self.input)?,
+            8 => crate::day08::solve_day08(&self.input)?,
             _ => todo!(),
         };
 
