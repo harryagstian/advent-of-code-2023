@@ -115,7 +115,7 @@ impl Map {
     }
 }
 
-pub fn solve_day08(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let mut answer = Answer::default();
 
     let map = Map::new(input);

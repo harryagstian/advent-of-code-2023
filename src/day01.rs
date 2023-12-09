@@ -4,7 +4,7 @@ use color_eyre::eyre::Result;
 
 use crate::solver::Answer;
 
-pub fn solve_day01(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let mut number_stacks: Vec<char> = vec![];
     let mut letter_stacks: Vec<char> = vec![];
 
@@ -93,7 +93,7 @@ fn add_answer(stacks: &[char], current: &mut i32) -> Result<(), color_eyre::eyre
 mod tests {
     use color_eyre::eyre::Result;
 
-    use crate::{day01::solve_day01, solver::Answer};
+    use crate::{day01::solve, solver::Answer};
 
     #[test]
     fn test_part1() -> Result<()> {
@@ -103,7 +103,7 @@ a1b2c3d4e5f
 treb7uchet
 ";
 
-        let answer = solve_day01(input)?;
+        let answer = solve(input)?;
         assert_eq!(answer.part1, Some("142".to_string()));
 
         Ok(())
@@ -112,21 +112,21 @@ treb7uchet
     #[test]
     fn test_part2() -> Result<()> {
         assert_eq!(
-            solve_day01("threenine\n")?,
+            solve("threenine\n")?,
             Answer {
                 part1: Some("0".to_string()),
                 part2: Some("39".to_string())
             }
         );
         assert_eq!(
-            solve_day01("eighthree\n")?,
+            solve("eighthree\n")?,
             Answer {
                 part1: Some("0".to_string()),
                 part2: Some("83".to_string())
             }
         );
         assert_eq!(
-            solve_day01("nine\n")?,
+            solve("nine\n")?,
             Answer {
                 part1: Some("0".to_string()),
                 part2: Some("99".to_string())
@@ -142,7 +142,7 @@ zoneight234
 7pqrstsixteen
 ";
 
-        let answer = solve_day01(input)?;
+        let answer = solve(input)?;
         assert_eq!(answer.part2, Some("281".to_string()));
 
         Ok(())

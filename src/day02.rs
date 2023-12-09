@@ -104,7 +104,7 @@ impl Game {
     }
 }
 
-pub fn solve_day02(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let bag = Set {
         red: 12,
         green: 13,
@@ -217,7 +217,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
     #[test]
     fn test_part1() -> Result<()> {
-        let answer = super::solve_day02(TEST_INPUT)?;
+        let answer = super::solve(TEST_INPUT)?;
 
         assert_eq!(answer.part1, Some("8".to_string()));
 
@@ -226,7 +226,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
     #[test]
     fn test_part2() -> Result<()> {
-        let answer = super::solve_day02(TEST_INPUT)?;
+        let answer = super::solve(TEST_INPUT)?;
 
         assert_eq!(answer.part2, Some("2286".to_string()));
 

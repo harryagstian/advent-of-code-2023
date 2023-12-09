@@ -69,7 +69,7 @@ impl Card {
     }
 }
 
-pub fn solve_day04(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let mut part1 = 0;
     let mut part2 = 0;
 
@@ -96,7 +96,7 @@ mod tests {
     use crate::day04::Card;
     use color_eyre::eyre::Result;
 
-    use super::solve_day04;
+    use super::solve;
 
     const TEST_INPUT: &str = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
@@ -125,7 +125,7 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
 
     #[test]
     fn test_part2() -> Result<()> {
-        let answer = solve_day04(TEST_INPUT)?;
+        let answer = solve(TEST_INPUT)?;
 
         assert_eq!(answer.part2, Some("30".to_string()));
 

@@ -225,7 +225,7 @@ impl Hand {
     }
 }
 
-pub fn solve_day07(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let mut answer = Answer::default();
     let mut hands = vec![];
 
@@ -260,7 +260,7 @@ pub fn solve_day07(input: &str) -> Result<Answer> {
 mod tests {
     use color_eyre::eyre::Result;
 
-    use crate::day07::solve_day07;
+    use crate::day07::solve;
 
     const TEST_INPUT: &str = "32T3K 765
 T55J5 684
@@ -270,7 +270,7 @@ QQQJA 483";
 
     #[test]
     fn test_part1() -> Result<()> {
-        let answer = solve_day07(TEST_INPUT)?;
+        let answer = solve(TEST_INPUT)?;
 
         assert_eq!(answer.part1, Some("6440".to_string()));
 
@@ -279,7 +279,7 @@ QQQJA 483";
 
     #[test]
     fn test_part2() -> Result<()> {
-        let answer = solve_day07(TEST_INPUT)?;
+        let answer = solve(TEST_INPUT)?;
 
         assert_eq!(answer.part2, Some("5905".to_string()));
 

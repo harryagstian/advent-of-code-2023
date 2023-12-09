@@ -251,7 +251,7 @@ impl Almanac {
     }
 }
 
-pub fn solve_day05(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let almanac = Almanac::new(input);
 
     let part1 = almanac.solve(&almanac.seeds_one);

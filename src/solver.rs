@@ -47,14 +47,15 @@ impl Solver {
 
     pub async fn solve(&mut self) -> Result<()> {
         let answer = match self.day {
-            1 => crate::day01::solve_day01(&self.input)?,
-            2 => crate::day02::solve_day02(&self.input)?,
-            3 => crate::day03::solve_day03(&self.input)?,
-            4 => crate::day04::solve_day04(&self.input)?,
-            5 => crate::day05::solve_day05(&self.input)?,
-            6 => crate::day06::solve_day06(&self.input)?,
-            7 => crate::day07::solve_day07(&self.input)?,
-            8 => crate::day08::solve_day08(&self.input)?,
+            1 => crate::day01::solve(&self.input)?,
+            2 => crate::day02::solve(&self.input)?,
+            3 => crate::day03::solve(&self.input)?,
+            4 => crate::day04::solve(&self.input)?,
+            5 => crate::day05::solve(&self.input)?,
+            6 => crate::day06::solve(&self.input)?,
+            7 => crate::day07::solve(&self.input)?,
+            8 => crate::day08::solve(&self.input)?,
+            9 => crate::day09::solve(&self.input)?,
             _ => todo!(),
         };
 

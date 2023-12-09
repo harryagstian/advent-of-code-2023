@@ -19,7 +19,7 @@ impl Race {
     }
 }
 
-pub fn solve_day06(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let mut answer = Answer::default();
     let mut part1 = 1;
 
@@ -82,7 +82,7 @@ fn insert_to_vec(line: &str, time_vec: &mut Vec<u64>) {
 
 #[cfg(test)]
 mod tests {
-    use super::solve_day06;
+    use super::solve;
     use color_eyre::eyre::Result;
 
     const TEST_INPUT: &str = "Time:      7  15   30
@@ -90,7 +90,7 @@ Distance:  9  40  200";
 
     #[test]
     fn test_part1() -> Result<()> {
-        let answer = solve_day06(TEST_INPUT)?;
+        let answer = solve(TEST_INPUT)?;
 
         assert_eq!(answer.part1, Some("288".to_string()));
 
@@ -99,7 +99,7 @@ Distance:  9  40  200";
 
     #[test]
     fn test_part2() -> Result<()> {
-        let answer = solve_day06(TEST_INPUT)?;
+        let answer = solve(TEST_INPUT)?;
 
         assert_eq!(answer.part2, Some("71503".to_string()));
 

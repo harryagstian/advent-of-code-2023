@@ -125,7 +125,7 @@ impl Schematic {
     }
 }
 
-pub fn solve_day03(input: &str) -> Result<Answer> {
+pub fn solve(input: &str) -> Result<Answer> {
     let schematic = Schematic::new(input);
     let part1: i32 = schematic.get_all_number_around_symbols().iter().sum();
     let part2: i32 = schematic.get_gear_ratio().iter().sum();
