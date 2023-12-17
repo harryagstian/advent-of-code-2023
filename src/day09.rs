@@ -79,12 +79,14 @@ pub fn solve(input: &str) -> Result<Answer> {
 #[cfg(test)]
 mod tests {
     use color_eyre::eyre::Result;
+    use tracing_test::traced_test;
 
     use crate::day09::solve;
     const TEST_INPUT: &str = "0 3 6 9 12 15
 1 3 6 10 15 21
 10 13 16 21 30 45";
 
+    #[traced_test]
     #[test]
     fn test_part1() -> Result<()> {
         let answer = solve(TEST_INPUT)?;
@@ -94,6 +96,7 @@ mod tests {
         Ok(())
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() -> Result<()> {
         let answer = solve(TEST_INPUT)?;

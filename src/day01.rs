@@ -92,9 +92,11 @@ fn add_answer(stacks: &[char], current: &mut i32) -> Result<(), color_eyre::eyre
 #[cfg(test)]
 mod tests {
     use color_eyre::eyre::Result;
+    use tracing_test::traced_test;
 
     use crate::{day01::solve, solver::Answer};
 
+    #[traced_test]
     #[test]
     fn test_part1() -> Result<()> {
         let input = "1abc2
@@ -109,6 +111,7 @@ treb7uchet
         Ok(())
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() -> Result<()> {
         assert_eq!(

@@ -95,6 +95,7 @@ mod tests {
 
     use crate::day04::Card;
     use color_eyre::eyre::Result;
+    use tracing_test::traced_test;
 
     use super::solve;
 
@@ -105,6 +106,7 @@ Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
 Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
 
+    #[traced_test]
     #[test]
     fn test_part1() {
         let scores = [8, 2, 2, 1, 0, 0, 0];
@@ -123,6 +125,7 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
         assert_eq!(current_score, total)
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() -> Result<()> {
         let answer = solve(TEST_INPUT)?;

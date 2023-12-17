@@ -127,8 +127,11 @@ pub fn solve(input: &str) -> Result<Answer> {
 
 #[cfg(test)]
 mod tests {
+    use tracing_test::traced_test;
+
     use crate::day08::Map;
 
+    #[traced_test]
     #[test]
     fn test_part1() {
         let input = "LLR
@@ -142,6 +145,7 @@ ZZZ = (ZZZ, ZZZ)";
         assert_eq!(map.travel_to_zzz(), 6);
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() {
         let input = "LR

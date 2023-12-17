@@ -84,10 +84,12 @@ fn insert_to_vec(line: &str, time_vec: &mut Vec<u64>) {
 mod tests {
     use super::solve;
     use color_eyre::eyre::Result;
+    use tracing_test::traced_test;
 
     const TEST_INPUT: &str = "Time:      7  15   30
 Distance:  9  40  200";
 
+    #[traced_test]
     #[test]
     fn test_part1() -> Result<()> {
         let answer = solve(TEST_INPUT)?;
@@ -97,6 +99,7 @@ Distance:  9  40  200";
         Ok(())
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() -> Result<()> {
         let answer = solve(TEST_INPUT)?;

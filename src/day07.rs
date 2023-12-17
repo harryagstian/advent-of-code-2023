@@ -259,6 +259,7 @@ pub fn solve(input: &str) -> Result<Answer> {
 #[cfg(test)]
 mod tests {
     use color_eyre::eyre::Result;
+    use tracing_test::traced_test;
 
     use crate::day07::solve;
 
@@ -268,6 +269,7 @@ KK677 28
 KTJJT 220
 QQQJA 483";
 
+    #[traced_test]
     #[test]
     fn test_part1() -> Result<()> {
         let answer = solve(TEST_INPUT)?;
@@ -277,6 +279,7 @@ QQQJA 483";
         Ok(())
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() -> Result<()> {
         let answer = solve(TEST_INPUT)?;

@@ -138,8 +138,11 @@ pub fn solve(input: &str) -> Result<Answer> {
 
 #[cfg(test)]
 mod tests {
+    use tracing_test::traced_test;
+
     use super::Schematic;
 
+    #[traced_test]
     #[test]
     fn test_part1() {
         let input = "467..114..
@@ -159,6 +162,7 @@ mod tests {
         assert_eq!(v, 4361)
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() {
         let input = "467..114..

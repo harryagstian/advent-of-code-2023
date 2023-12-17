@@ -267,6 +267,8 @@ pub fn solve(input: &str) -> Result<Answer> {
 
 #[cfg(test)]
 mod tests {
+    use tracing_test::traced_test;
+
     use crate::day05::Almanac;
 
     const TEST_INPUT: &str = "seeds: 79 14 55 13
@@ -304,6 +306,7 @@ humidity-to-location map:
 56 93 4
 ";
 
+    #[traced_test]
     #[test]
     fn test_part1() {
         let almanac = Almanac::new(TEST_INPUT);
@@ -311,6 +314,7 @@ humidity-to-location map:
         assert_eq!(solution, 35);
     }
 
+    #[traced_test]
     #[test]
     fn test_part2() {
         let almanac = Almanac::new(TEST_INPUT);
