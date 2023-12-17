@@ -130,14 +130,14 @@ impl Image {
         end_coordinate: &Coordinate,
         expansion_factor: i64,
     ) -> i64 {
-        let x_distance = self.move_to_end(
+        let x_distance = self.distance_between_point(
             start_coordinate.x,
             end_coordinate.x,
             &self.space_objects.x,
             expansion_factor,
         );
 
-        let y_distance = self.move_to_end(
+        let y_distance = self.distance_between_point(
             start_coordinate.y,
             end_coordinate.y,
             &self.space_objects.y,
@@ -147,27 +147,24 @@ impl Image {
         x_distance + y_distance
     }
 
-    fn move_to_end(&self, start: i64, end: i64, set: &HashSet<i64>, expansion_factor: i64) -> i64 {
+    fn distance_between_point(
+        &self,
+        start: i64,
+        end: i64,
+        set: &HashSet<i64>,
+        expansion_factor: i64,
+    ) -> i64 {
         assert!(expansion_factor > 1);
-        let mut current = start;
         let mut distance = 0;
+        let min = std::cmp::min(start, end);
+        let max = std::cmp::max(start, end);
 
-        while current != end {
-            let diff = match start.cmp(&end) {
-                std::cmp::Ordering::Less => 1,
-                std::cmp::Ordering::Equal => unreachable!(),
-                std::cmp::Ordering::Greater => -1,
+        for value in min..max {
+            distance += if !set.contains(&value) {
+                expansion_factor
+            } else {
+                1
             };
-
-            let new = current + diff;
-            distance += diff.abs();
-
-            if !set.contains(&new) {
-                let expansion = diff.abs() * (expansion_factor - 1);
-                distance += expansion;
-            }
-
-            current = new;
         }
 
         distance
