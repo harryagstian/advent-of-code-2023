@@ -1,22 +1,12 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 use crate::solver::Answer;
 
 use color_eyre::eyre::Result;
-use thiserror::Error;
+
 use tracing::info;
 
-#[derive(Error, Debug)]
-enum StateError {
-    #[error("out of stacks")]
-    OutOfStacks,
-    #[error("stacks not equal")]
-    StacksNotEqual,
-    #[error("valid state is not empty")]
-    ValidStateNotEmpty,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 enum Condition {
     Good,
     Bad,
@@ -37,8 +27,8 @@ impl DisplayVecCondition for Vec<Condition> {
 impl Condition {
     fn new(c: &char) -> Self {
         match c {
-            '#' => Condition::Good,
-            '.' => Condition::Bad,
+            '.' => Condition::Good,
+            '#' => Condition::Bad,
             '?' => Condition::Unknown,
             _ => unreachable!(),
         }
@@ -46,111 +36,120 @@ impl Condition {
 
     fn display(&self) -> &str {
         match self {
-            Condition::Good => "#",
-            Condition::Bad => "·",
+            Condition::Good => ".",
+            Condition::Bad => "#",
             Condition::Unknown => "?",
         }
     }
 
-    fn from_line(line: &str) -> Vec<Self> {
+    fn from_line(line: &str) -> VecDeque<Self> {
         line.chars().map(|f| Self::new(&f)).collect()
     }
 }
 
 #[derive(Debug)]
 struct Spring {
-    raw: Vec<Condition>,
-    valid_state: VecDeque<i32>,
+    raw: VecDeque<Condition>,
+    valid_state: VecDeque<i64>,
 }
 
 impl Spring {
-    fn new(input: &str) -> Self {
+    fn new(input: &str, multiplier: usize) -> Self {
         let vec = input.split_whitespace().collect::<Vec<&str>>();
         assert_eq!(vec.len(), 2);
 
-        let raw = Condition::from_line(vec.first().unwrap());
-        let valid_state = vec
-            .last()
-            .unwrap()
+        let value = std::iter::repeat(*vec.first().unwrap())
+            .take(multiplier)
+            .collect::<Vec<_>>()
+            .join("?");
+        let raw = Condition::from_line(&value);
+
+        let valid_state = std::iter::repeat(*vec.last().unwrap())
+            .take(multiplier)
+            .collect::<Vec<_>>()
+            .join(",")
             .split(',')
-            .map(|f| f.parse::<i32>().unwrap())
+            .map(|f| f.parse::<i64>().unwrap())
             .collect();
 
         Self { raw, valid_state }
     }
 
-    fn find_combinations(&self) -> Vec<Vec<Condition>> {
-        let indices = self
-            .raw
-            .iter()
-            .enumerate()
-            .filter(|(_, &f)| f == Condition::Unknown)
-            .map(|(index, _)| index)
-            .collect::<Vec<usize>>();
-
-        let mut stacks = Vec::from([self.raw.clone()]);
-        for index in indices {
-            let mut new_stacks = vec![];
-            while let Some(mut current) = stacks.pop() {
-                for value in [Condition::Bad, Condition::Good] {
-                    current[index] = value;
-                    new_stacks.push(current.clone());
+    fn valid_count(&self) -> i64 {
+        fn inner(
+            condition: &VecDeque<Condition>,
+            valid_state: &VecDeque<i64>,
+            memo: &mut HashMap<(VecDeque<Condition>, VecDeque<i64>), i64>,
+        ) -> i64 {
+            // logic implemented based on https://www.youtube.com/watch?v=g3Ms5e7Jdqo
+            if condition.is_empty() {
+                if valid_state.is_empty() {
+                    return 1;
+                } else {
+                    return 0;
                 }
             }
-            stacks = new_stacks;
-        }
 
-        stacks
-    }
-
-    fn is_valid(&self, combination: &Vec<Condition>) -> Result<()> {
-        let mut valid_state = self.valid_state.clone();
-        let mut stacks = vec![];
-        for value in combination {
-            // dbg!(&value, &stacks);
-            match value {
-                Condition::Good => {
-                    stacks.push(Condition::Good);
+            if valid_state.is_empty() {
+                if condition.contains(&Condition::Bad) {
+                    return 0;
+                } else {
+                    return 1;
                 }
-                Condition::Bad => {
-                    // if stacks empty, do nothing
-                    // otherwise pop_front valid_state
-                    if !stacks.is_empty() {
-                        let len = stacks.len() as i32;
-                        let next_value = match valid_state.pop_front() {
-                            Some(v) => v,
-                            None => return Err(StateError::OutOfStacks.into()), // if valid_state is empty, return false
-                        };
+            }
 
-                        // if current stacks len is not equal to next state, return false
-                        if len != next_value {
-                            return Err(StateError::StacksNotEqual.into());
-                        }
+            match memo.get(&(condition.clone(), valid_state.clone())) {
+                Some(&value) => value,
+                None => {
+                    let mut result = 0;
+                    let next_spring = *condition.front().unwrap();
+                    let next_state = *valid_state.front().unwrap();
 
-                        stacks.clear();
+                    if next_spring == Condition::Good || next_spring == Condition::Unknown {
+                        let new_condition = condition
+                            .range(1..)
+                            .copied()
+                            .collect::<VecDeque<Condition>>();
+                        result += inner(&new_condition, valid_state, memo);
                     }
+
+                    if next_spring == Condition::Bad || next_spring == Condition::Unknown {
+                        let next_good_condition_index =
+                            match condition.iter().position(|f| f == &Condition::Good) {
+                                Some(v) => v as i64,
+                                None => i64::MAX,
+                            };
+
+                        if (next_state <= condition.len() as i64)  // there is still enough conditions to satisfy next_state number
+                            && (next_state <= next_good_condition_index) // the block is at least bigger than next_state
+                            // end of condition, or
+                            // there is more conditions, but separated by . or ?
+                            && (next_state == condition.len() as i64 || condition[next_state as usize] != Condition::Bad)
+                        {
+                            let new_condition = if next_state as usize + 1 > condition.len() {
+                                // if block size is bigger than current vec, pass an empty vec
+                                VecDeque::new()
+                            } else {
+                                condition
+                                    .range(next_state as usize + 1..)
+                                    .copied()
+                                    .collect::<VecDeque<Condition>>()
+                            };
+
+                            let mut new_valid_state = valid_state.clone();
+                            new_valid_state.pop_front();
+
+                            result += inner(&new_condition, &new_valid_state, memo);
+                        }
+                    }
+                    memo.insert((condition.clone(), valid_state.clone()), result);
+
+                    result
                 }
-                Condition::Unknown => unreachable!(),
             }
         }
 
-        if !stacks.is_empty() {
-            let len = stacks.len() as i32;
-            let next_value = match valid_state.pop_front() {
-                Some(v) => v,
-                None => return Err(StateError::OutOfStacks.into()), // if valid_state is empty, return false
-            };
-            // if current stacks len is not equal to next state, return false
-            if len != next_value {
-                return Err(StateError::StacksNotEqual.into());
-            }
-        }
-
-        if !valid_state.is_empty() {
-            return Err(StateError::ValidStateNotEmpty.into());
-        }
-
-        Ok(())
+        inner(&self.raw, &self.valid_state, &mut HashMap::new())
     }
 }
 
@@ -160,22 +159,16 @@ pub fn solve(input: &str) -> Result<Answer> {
     let mut answer = Answer::default();
 
     for line in input.lines() {
-        let mut valid_state = 0;
         if line.is_empty() {
             continue;
         }
-        let spring = Spring::new(line);
-        let combinations = spring.find_combinations();
 
-        for combination in combinations {
-            let state = spring.is_valid(&combination);
-            if state.is_ok() {
-                // combination.display();
-                valid_state += 1;
-            }
+        for (v, multiplier) in [(&mut part1, 1), (&mut part2, 5)] {
+            let spring = Spring::new(line, multiplier);
+            let valid_state = spring.valid_count();
+
+            *v += valid_state;
         }
-
-        part1 += valid_state;
     }
 
     answer.part1 = Some(part1.to_string());
@@ -185,10 +178,10 @@ pub fn solve(input: &str) -> Result<Answer> {
 
 #[cfg(test)]
 mod tests {
-    use tracing::info;
+    use color_eyre::eyre::Result;
     use tracing_test::traced_test;
 
-    use crate::day12::Condition;
+    use crate::day12::solve;
 
     use super::Spring;
 
@@ -201,56 +194,36 @@ mod tests {
 
     #[traced_test]
     #[test]
-    fn test_valid_combination() {
-        let cases = vec![
-            ("???.### 1,1,3", vec![("#.#.###", true)]),
-            (
-                "?###???????? 3,2,1",
-                vec![
-                    (".###.##.#...", true),
-                    (".###.##..#..", true),
-                    (".###.##..#.#", false),
-                ],
-            ),
-        ];
-
-        for (line, rest) in cases {
-            let spring = Spring::new(line);
-            for (condition, state) in rest {
-                info!(
-                    "Running test cases: Spring {}, condition: {}, state {}",
-                    &line, &condition, &state
-                );
-                let condition_vec = Condition::from_line(condition);
-                let s = spring.is_valid(&condition_vec);
-                dbg!(&s);
-                assert_eq!(spring.is_valid(&condition_vec).is_ok(), state);
-            }
-        }
-    }
-
-    #[traced_test]
-    #[test]
     fn test_valid_count() {
         let mut stacks = vec![];
         for line in TEST_INPUT.lines() {
-            let mut valid_state = 0;
             if line.is_empty() {
                 continue;
             }
-            let spring = Spring::new(line);
-            let combinations = spring.find_combinations();
-
-            for combination in combinations {
-                let state = spring.is_valid(&combination);
-                if state.is_ok() {
-                    valid_state += 1;
-                }
-            }
+            let spring = Spring::new(line, 1);
+            let valid_state = spring.valid_count();
 
             stacks.push(valid_state);
         }
 
         assert_eq!(stacks, [1, 4, 1, 1, 4, 10]);
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_part1() -> Result<()> {
+        let answer = solve(TEST_INPUT)?;
+
+        assert_eq!(answer.part1, Some("21".to_string()));
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_part2() -> Result<()> {
+        let answer = solve(TEST_INPUT)?;
+
+        assert_eq!(answer.part2, Some("525152".to_string()));
+        Ok(())
     }
 }
