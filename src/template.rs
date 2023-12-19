@@ -17,4 +17,6 @@ pub fn solve(input: &str) -> Result<Answer> {
 mod tests {
     use tracing::info;
     use tracing_test::traced_test;
+
+    use color_eyre::eyre::Result;
 }
