@@ -18,6 +18,7 @@ mod tests {
     use tracing::info;
     use tracing_test::traced_test;
 
+    use super::*;
     use color_eyre::eyre::Result;
 
     #[traced_test]
