@@ -1,4 +1,7 @@
-use crate::solver::Answer;
+use crate::{
+    solver::Answer,
+    utils::{get_column, get_row},
+};
 
 use color_eyre::eyre::Result;
 use tracing::info;
@@ -18,22 +21,6 @@ impl Pattern {
         // 1 starts from top left, we don't need to do map.reverse()
 
         Self { map }
-    }
-
-    fn get_column(&self, index: i32) -> Option<Vec<char>> {
-        if index < 0 || index as usize >= self.map[0].len() {
-            None
-        } else {
-            Some(self.map.iter().map(|row| row[index as usize]).collect())
-        }
-    }
-
-    fn get_row(&self, index: i32) -> Option<Vec<char>> {
-        if index < 0 || index as usize >= self.map.len() {
-            None
-        } else {
-            Some(self.map[index as usize].clone())
-        }
     }
 
     fn line_diff_with_autofix(
@@ -63,17 +50,22 @@ impl Pattern {
         (true, can_autofix)
     }
 
-    fn check_reflection<F>(len: usize, get_element: F, smudge_init: bool) -> Option<i32>
+    fn check_reflection<F>(
+        map: &[Vec<char>],
+        len: usize,
+        get_element: F,
+        smudge_init: bool,
+    ) -> Option<i32>
     where
-        F: Fn(i32) -> Option<Vec<char>>,
+        F: Fn(&[Vec<char>], i32) -> Option<Vec<char>>,
     {
         for i in 0..len - 1 {
             let mut smudge = smudge_init;
             let mut left_index = i as i32;
             let mut right_index = i as i32 + 1;
 
-            let left = get_element(left_index).unwrap();
-            let right = get_element(right_index).unwrap();
+            let left = get_element(map, left_index).unwrap();
+            let right = get_element(map, right_index).unwrap();
 
             let t = Self::line_diff_with_autofix(&left, &right, smudge);
             let equal_line = t.0;
@@ -85,8 +77,8 @@ impl Pattern {
                     left_index -= 1;
                     right_index += 1;
 
-                    let left_opt = get_element(left_index);
-                    let right_opt = get_element(right_index);
+                    let left_opt = get_element(map, left_index);
+                    let right_opt = get_element(map, right_index);
 
                     match (left_opt, right_opt) {
                         (Some(left), Some(right)) => {
@@ -115,12 +107,12 @@ impl Pattern {
         let max_column = self.map[0].len();
         let max_row = self.map.len();
 
-        let column = Self::check_reflection(max_column, |index| self.get_column(index), smudge);
+        let column = Self::check_reflection(&self.map, max_column, get_column, smudge);
 
         if let Some(value) = column {
             value + 1
         } else {
-            let row = Self::check_reflection(max_row, |index| self.get_row(index), smudge);
+            let row = Self::check_reflection(&self.map, max_row, get_row, smudge);
             (row.unwrap() + 1) * 100
         }
     }

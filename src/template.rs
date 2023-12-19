@@ -19,4 +19,24 @@ mod tests {
     use tracing_test::traced_test;
 
     use color_eyre::eyre::Result;
+
+    #[traced_test]
+    #[test]
+    fn test_part1() -> Result<()> {
+        let answer = solve(TEST_INPUT)?;
+
+        assert_eq!(answer.part1, Some("405".to_string()));
+
+        Ok(())
+    }
+
+    #[traced_test]
+    #[test]
+    fn test_part2() -> Result<()> {
+        let answer = solve(TEST_INPUT)?;
+
+        assert_eq!(answer.part2, Some("".to_string()));
+
+        Ok(())
+    }
 }
