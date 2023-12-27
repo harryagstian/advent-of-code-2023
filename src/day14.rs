@@ -102,6 +102,7 @@ impl Platform {
             // because we move RoundRock to front of the vec, South and East need to be reversed
             Direction::North | Direction::West => false,
             Direction::South | Direction::East => true,
+            _ => unreachable!(),
         };
 
         for index in 0..len {

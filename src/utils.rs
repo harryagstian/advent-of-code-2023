@@ -1,32 +1,47 @@
 use num::Integer;
+use strum::EnumIter;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, EnumIter)]
 pub enum Direction {
     North,
     East,
     South,
     West,
+    Up,
+    Down,
+    Right,
+    Left,
 }
 
 impl Direction {
     pub fn is_vertical(&self) -> bool {
         match self {
-            Direction::East | Direction::West => false,
-            Direction::South | Direction::North => true,
+            Direction::East | Direction::West | Direction::Left | Direction::Right => false,
+            Direction::South | Direction::North | Direction::Up | Direction::Down => true,
         }
     }
 
     pub fn is_horizontal(&self) -> bool {
         match self {
-            Direction::East | Direction::West => true,
-            Direction::South | Direction::North => false,
+            Direction::East | Direction::West | Direction::Left | Direction::Right => true,
+            Direction::South | Direction::North | Direction::Up | Direction::Down => false,
+        }
+    }
+
+    pub fn get_modifier(&self) -> (i32, i32) {
+        match self {
+            Direction::North | Direction::Up => (0, 1),
+            Direction::East | Direction::Left => (-1, 0),
+            Direction::South | Direction::Down => (0, -1),
+            Direction::West | Direction::Right => (1, 0),
         }
     }
 }
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub struct Coordinate<T> {
-    x: T,
-    y: T,
+    pub x: T,
+    pub y: T,
 }
 
 impl<T: Integer + Copy> Coordinate<T> {
