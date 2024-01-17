@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use num::Integer;
 use strum::EnumIter;
 
@@ -63,6 +65,25 @@ impl Direction {
             Direction::South | Direction::Down => "↓",
             Direction::West | Direction::Right => "→",
         }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct ParseDirectionError;
+
+impl FromStr for Direction {
+    type Err = ParseDirectionError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let result = match s {
+            "R" => Direction::Right,
+            "D" => Direction::Down,
+            "U" => Direction::Up,
+            "L" => Direction::Left,
+            _ => return Err(ParseDirectionError),
+        };
+
+        Ok(result)
     }
 }
 
