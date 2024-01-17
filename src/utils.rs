@@ -1,6 +1,12 @@
 use num::Integer;
 use strum::EnumIter;
 
+#[derive(PartialEq)]
+pub enum Part {
+    One,
+    Two,
+}
+
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, EnumIter)]
 pub enum Direction {
     North,
@@ -28,12 +34,34 @@ impl Direction {
         }
     }
 
+    pub fn reverse(&self) -> Direction {
+        match self {
+            Direction::North => Direction::South,
+            Direction::East => Direction::West,
+            Direction::South => Direction::North,
+            Direction::West => Direction::East,
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+            Direction::Right => Direction::Left,
+            Direction::Left => Direction::Right,
+        }
+    }
+
     pub fn get_modifier(&self) -> (i32, i32) {
         match self {
             Direction::North | Direction::Up => (0, 1),
             Direction::East | Direction::Left => (-1, 0),
             Direction::South | Direction::Down => (0, -1),
             Direction::West | Direction::Right => (1, 0),
+        }
+    }
+
+    pub fn display(&self) -> &str {
+        match self {
+            Direction::North | Direction::Up => "↑",
+            Direction::East | Direction::Left => "←",
+            Direction::South | Direction::Down => "↓",
+            Direction::West | Direction::Right => "→",
         }
     }
 }

@@ -63,6 +63,7 @@ impl Solver {
             14 => crate::day14::solve(&self.input)?,
             15 => crate::day15::solve(&self.input)?,
             16 => crate::day16::solve(&self.input)?,
+            17 => crate::day17::solve(&self.input)?,
             _ => todo!(),
         };
 

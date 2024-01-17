@@ -21,6 +21,8 @@ mod tests {
     use super::*;
     use color_eyre::eyre::Result;
 
+    const TEST_INPUT: &str = "placeholder";
+
     #[traced_test]
     #[test]
     fn test_part1() -> Result<()> {

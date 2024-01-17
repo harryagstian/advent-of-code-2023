@@ -8,8 +8,8 @@ pub fn solve(input: &str) -> Result<Answer> {
     let mut number_stacks: Vec<char> = vec![];
     let mut letter_stacks: Vec<char> = vec![];
 
-    let mut part_01 = 0;
-    let mut part_02 = 0;
+    let mut part1 = 0;
+    let mut part2 = 0;
 
     // part 1
     for c in input.chars() {
@@ -18,7 +18,7 @@ pub fn solve(input: &str) -> Result<Answer> {
             number_stacks.push(c);
         } else if c == '\n' {
             // line termination
-            add_answer(&number_stacks, &mut part_01)?;
+            add_answer(&number_stacks, &mut part1)?;
 
             number_stacks.clear();
         }
@@ -33,7 +33,7 @@ pub fn solve(input: &str) -> Result<Answer> {
             number_stacks.push(c);
         } else if c == '\n' {
             // line termination
-            add_answer(&number_stacks, &mut part_02)?;
+            add_answer(&number_stacks, &mut part2)?;
 
             number_stacks.clear();
             letter_stacks.clear();
@@ -72,8 +72,8 @@ pub fn solve(input: &str) -> Result<Answer> {
     }
 
     let answer = Answer {
-        part1: Some(part_01.to_string()),
-        part2: Some(part_02.to_string()),
+        part1: Some(part1.to_string()),
+        part2: Some(part2.to_string()),
     };
 
     Ok(answer)
