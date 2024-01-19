@@ -127,7 +127,7 @@ impl Map {
             Direction::Right,
             Direction::Down,
         ] {
-            let modifier = direction.get_modifier();
+            let modifier = direction.get_modifier(1);
             let next_coordinate = initial_coordinate.add(modifier.0, modifier.1);
 
             if next_coordinate.x < 0
@@ -191,7 +191,7 @@ impl Map {
                 };
 
                 let mut next_steps_in_this_direction = 1;
-                let modifier = next_direction.get_modifier();
+                let modifier = next_direction.get_modifier(1);
                 let next_coordinate = current_queue.coordinate.add(modifier.0, modifier.1);
 
                 if next_coordinate.x < 0
@@ -214,7 +214,10 @@ impl Map {
                     next_steps_in_this_direction = current_queue.steps_in_this_direction + 1;
                 }
 
-                if part == Part::Two && current_queue.previous_direction != next_direction && current_queue.steps_in_this_direction < 4 {
+                if part == Part::Two
+                    && current_queue.previous_direction != next_direction
+                    && current_queue.steps_in_this_direction < 4
+                {
                     // need to go at least 4 times straight
                     continue;
                 }

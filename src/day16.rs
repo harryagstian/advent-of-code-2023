@@ -151,7 +151,7 @@ impl Grid {
         let max_x = self.map[0].len();
 
         while let Some((current_coordinate, current_direction)) = queue.pop() {
-            let (mod_x, mod_y) = current_direction.get_modifier();
+            let (mod_x, mod_y) = current_direction.get_modifier(1);
             let next_coordinate = current_coordinate.add(mod_x, mod_y);
 
             // OOB
@@ -250,7 +250,7 @@ pub fn solve(input: &str) -> Result<Answer> {
 
 #[cfg(test)]
 mod tests {
-    
+
     use tracing_test::traced_test;
 
     use super::*;

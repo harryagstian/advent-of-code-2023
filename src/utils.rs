@@ -49,12 +49,12 @@ impl Direction {
         }
     }
 
-    pub fn get_modifier(&self) -> (i32, i32) {
+    pub fn get_modifier(&self, increment: i32) -> (i32, i32) {
         match self {
-            Direction::North | Direction::Up => (0, 1),
-            Direction::East | Direction::Left => (-1, 0),
-            Direction::South | Direction::Down => (0, -1),
-            Direction::West | Direction::Right => (1, 0),
+            Direction::North | Direction::Up => (0, increment),
+            Direction::East | Direction::Left => (-increment, 0),
+            Direction::South | Direction::Down => (0, -increment),
+            Direction::West | Direction::Right => (increment, 0),
         }
     }
 
